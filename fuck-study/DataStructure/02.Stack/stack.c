@@ -81,10 +81,14 @@ void stack_destory(Stack* s)
 	}
 	else
 	{
+		Node* pCur = s->top;
 		while (s->top)
 		{
-			stack_pop(s);
+			pCur = s->top;
+			s->top = s->top->next;
+			free(pCur);
 		}
+		free(s);
 	}
 }
 
