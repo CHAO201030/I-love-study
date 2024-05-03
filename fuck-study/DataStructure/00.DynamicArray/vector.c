@@ -144,7 +144,7 @@ E pop_front(Vector* v)
 
 		int ret = v->elements[0];
 
-		for(int i = 0; i < v->size; i++)
+		for (int i = 0; i < v->size - 1; i++)
 		{
 			v->elements[i] = v->elements[i + 1];
 		}
