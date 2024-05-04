@@ -1,81 +1,74 @@
 #include"queue.h"
 
+
 Queue* queue_create()
 {
-	Queue* q = (Queue*)calloc(1, sizeof(Queue));
+	Queue* q = calloc(1, sizeof(Queue));
 	if (q == NULL)
 	{
-		printf("Queue Create Failed\n");
-		exit(-1);
+		printf("Queue create failed, calloc failed\n");
+		return NULL;
 	}
-	else
-	{
-		q->capacity = QUEUE_CAPACITY;
-		q->size = 0;
-		q->elements = (E*)calloc(QUEUE_CAPACITY + 1, sizeof(E));
-		// 队头队尾相等时为空,队尾指向下一个元素的插入位置
-		q->front = 0;
-		q->rear = 0;
-	}
-
+	q->capacity = MAX_CAPACITY;
+	
 	return q;
 }
 
-void queue_destory(Queue* q)
+void queue_destroy(Queue* q)
 {
-	if (q->size == 0)
+	free(q->elements);
+	free(q);
+}
+
+void queue_expansion(Queue* q)
+{
+	int new_capacity = q->capacity + MAX_CAPACITY;
+	E* temp = (E*)malloc(new_capacity * sizeof(E));
+	if (temp == NULL)
 	{
-		return;
+		printf("Queue expansion failed, realloc failed\n");
+		exit(-1);
 	}
-	else
+
+	// 元素复制
+	for (int i = 0; i < q->size; i++)
 	{
-		while (q->size)
-		{
-			queue_pop(q);
-		}
-		q->front = 0;
-		q->rear = 0;
-		q->capacity = 0;
-		free(q->elements);
-		q->elements = NULL;
+		temp[i] = q->elements[(q->front + i) % q->capacity];
 	}
+
+	free(q->elements);
+
+	q->elements = temp;
+	q->front = 0;
+	q->rear = q->size;
+	q->capacity = new_capacity;
 }
 
 void queue_push(Queue* q, E val)
 {
 	if (q->size == 0)
 	{
-		q->size++;
-		q->elements[q->rear++] = val;
-	}
-	else if (q->size == QUEUE_CAPACITY)
-	{
-		// 扩容
-		int new_capacity = q->capacity + QUEUE_CAPACITY + 1;
-
-		E* temp = (E*)realloc(q->elements, new_capacity * sizeof(int));
-		if (NULL == temp)
+		E* temp = (E*)calloc(MAX_CAPACITY, sizeof(E));
+		if (temp == NULL)
 		{
-			printf("Queue Expansion Failed\n");
+			printf("Queue push failed, queue->elements calloc failed\n");
 			return;
 		}
-		// 扩容后的新空间清0
-		for (int i = q->rear; i < new_capacity; i++)
-		{
-			temp[i] = 0;
-		}
-
-		q->capacity += QUEUE_CAPACITY;
 		q->elements = temp;
-		q->elements[q->rear] = val;
+		q->rear++;
 		q->size++;
-		q->rear = (q->rear++) % (q->capacity + 1);
+		q->elements[0] = val;
 	}
 	else
 	{
-		q->size++;
+		if (q->size >= q->capacity)
+		{
+			// expansion
+			queue_expansion(q);
+		}
 		q->elements[q->rear] = val;
-		q->rear = (q->rear++) % (q->capacity + 1);
+		q->rear = (q->rear + 1) % q->capacity;
+		q->size++;
 	}
 }
 
@@ -83,15 +76,14 @@ E queue_pop(Queue* q)
 {
 	if (q->size == 0)
 	{
-		printf("Queue Pop Failed\n");
-		return QUEUE_POP_FAILED;
+		printf("Queue pop failed, queue is empty\n");
+		exit(-1);
 	}
 	else
 	{
 		E temp = q->elements[q->front];
-		q->front = (q->front++) % (q->capacity + 1);
+		q->front = (q->front + 1) % q->capacity;
 		q->size--;
-		
 		return temp;
 	}
 }
@@ -100,13 +92,10 @@ E queue_peek(Queue* q)
 {
 	if (q->size == 0)
 	{
-		printf("Queue Peek Failed\n");
-		return QUEUE_PEEK_FAILED;
+		printf("Queue peek failed, queue is empty\n");
+		exit(-1);
 	}
-	else
-	{
-		return q->elements[q->front];
-	}
+	return q->elements[q->front];
 }
 
 bool queue_empty(Queue* q)

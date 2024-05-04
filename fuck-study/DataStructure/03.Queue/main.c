@@ -2,38 +2,35 @@
 
 int main()
 {
-	E pop;
-	E peek;
-	bool empty;
-
 	Queue* q = queue_create();
-	for (E i = 1; i <= 4; i++)
+
+	printf("Queue is empty? %s\n", queue_empty(q) ? "empty" : "false");
+
+	for (int i = 0; i < 10; i++)
 	{
 		queue_push(q, i);
 	}
-	queue_push(q, 5);
 
-	pop = queue_pop(q);
-	if (pop == QUEUE_POP_FAILED)
+	printf("%d\n", queue_pop(q));
+	printf("%d\n", queue_pop(q));
+	printf("%d\n", queue_pop(q));
+
+	queue_push(q, 10);
+	queue_push(q, 11);
+	queue_push(q, 12);
+	queue_push(q, 13);
+
+	printf("%d\n", queue_pop(q));
+
+	printf("%d\n", queue_peek(q));
+
+	int count = q->size;
+	for (int i = 0; i < count; i++)
 	{
-		return -1;
+		printf("%2d ", queue_pop(q));
 	}
-	printf("Queue Pop is %d\n", pop);
 
-	peek = queue_peek(q);
-	if (peek == QUEUE_PEEK_FAILED)
-	{
-		return -1;
-	}
-	printf("Queue Peek is %d\n", peek);
+	queue_destroy(q);
 
-	empty = queue_empty(q);
-	printf("Queue is empty ? %s\n", empty ? "True" : "False");
-
-	queue_destory(q);
-
-	empty = queue_empty(q);
-	printf("Queue is empty ? %s\n", empty ? "True" : "False");
-	
 	return 0;
 }
