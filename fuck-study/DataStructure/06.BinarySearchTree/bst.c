@@ -1,4 +1,5 @@
 #include"bst.h"
+#include"queue.h"
 
 BST* bst_create()
 {
@@ -34,16 +35,38 @@ TreeNode* bst_search(BST* tree, K key)
 	}
 }
 
+void destroy_node(TreeNode* node)
+{
+	if (node == NULL)
+	{
+		return;
+	}
+	else
+	{
+		destroy_node(node->left);
+		destroy_node(node->right);
+		free(node);
+	}
+}
+
 void bst_destroy(BST* tree)
 {
-
+	if (tree->root == NULL)
+	{
+		return;
+	}
+	else
+	{
+		destroy_node(tree->root);
+		free(tree);
+	}
 }
 
 void bst_insert(BST* tree, K key)
 {
 	if (tree == NULL)
 	{
-		printf("BST insert failed, BST is NULL\n");
+		printf("BST insert failed, BST  not initialized\n");
 		exit(-1);
 	}
 	else
@@ -109,34 +132,102 @@ void bst_delete(BST* tree, K key)
 			if (pCur->key == key)break;
 			pParent = pCur;
 			pCur = key > pCur->key ? pCur->right : pCur->left;
-
 		}
 
+		// 没找到该节点
 		if (pCur == NULL)
 		{
 			printf("BST delete node failed, no such node\n");
 			return;
 		}
 
+		// case a : 被删除节点有两个孩子，找他中序遍历的直接前驱或后继代替他，转化为case b or c
+		if (pCur->left && pCur->right)
+		{
+			/*
+			
+			// 找中序直接前驱节点 左的最右
+			TreeNode* pPre = pCur->left;
+			TreeNode* pPre_parent = pCur;
+			
+			// 找左子树的最右下节点
+			while (pPre->right)
+			{
+				pPre_parent = pPre;
+				pPre = pPre->right;
+			}
+			// 转化为 case b or c
+			pCur->key = pPre->key;
+			pCur = pPre;
+			pParent = pPre_parent;
+
+			*/
+
+			// 找中序直接后继节点 右的最左
+			TreeNode* pPost = pCur->right;
+			TreeNode* pPost_parent = pCur;
+
+			// 找右子树的最左下节点
+			while (pPost->left)
+			{
+				pPost_parent = pPost;
+				pPost = pPost->left;
+			}
+
+			// 转化为case b or c
+			pCur->key = pPost->key;
+			pCur = pPost;
+			pParent = pPost_parent;
+		}
+
 		// case a : 被删除节点没有孩子，直接删除，父节点指针改为NULL
 		if (pCur->left == NULL && pCur->right == NULL)
 		{
+			if (pParent == NULL)
+			{
+				// 删除的是根节点
+				tree->root = NULL;
+				free(pCur);
+				return;
+			}
 
-		}
+			if (pParent->left == pCur)
+			{
+				pParent->left = NULL;
+			}
+			else
+			{
+				pParent->right = NULL;
+			}
 
-		// case b : 被删除节点有两个孩子，找他中序遍历的直接前驱或后继代替他，转化为case a
-		if (pCur->left && pCur->right)
-		{
-			// 找中序直接前驱节点
-
-			// 找中序直接后继节点
-
+			free(pCur);
+			return;
 		}
 
 		// case c : 被删除节点有一个孩子，让父节点指针指向其孩子
 		if (pCur->left || pCur->right)
 		{
+			TreeNode* pChild = pCur->left ? pCur->left : pCur->right;
+			
+			if (pParent == NULL)
+			{
+				// 删除的是根节点
+				tree->root = pChild;
+				free(pCur);
+				return;
+			}
 
+			if (pParent->left == pCur)
+			{
+				pParent->left = pChild;
+			}
+			else
+			{
+				pParent->right = pChild;
+			}
+
+			free(pCur);
+			return;
 		}
 	}
 }
@@ -204,5 +295,14 @@ void bst_postorder(BST* tree)
 
 void bst_levelorder(BST* tree)
 {
-
+	Queue* q = queue_create();
+	queue_push(q, tree->root);
+	while (!queue_empty(q))
+	{
+		TreeNode* pCur = queue_pop(q);
+		printf("%3d ", pCur->key);
+		if (pCur->left)queue_push(q, pCur->left);
+		if (pCur->right)queue_push(q, pCur->right);
+	}
+	printf("\n");
 }
