@@ -1,5 +1,5 @@
+#include"BST.h"
 #include"queue.h"
-
 
 Queue* queue_create()
 {
@@ -10,7 +10,7 @@ Queue* queue_create()
 		return NULL;
 	}
 	q->capacity = MAX_CAPACITY;
-	
+
 	return q;
 }
 
@@ -30,7 +30,6 @@ void queue_expansion(Queue* q)
 		exit(-1);
 	}
 
-	// ÔªËØ¸´ÖÆ
 	for (int i = 0; i < q->size; i++)
 	{
 		temp[i] = q->elements[(q->front + i) % q->capacity];
@@ -57,7 +56,7 @@ void queue_push(Queue* q, E val)
 		q->elements = temp;
 		q->rear++;
 		q->size++;
-		q->elements[0] = val;
+		q->elements[q->front] = val;
 	}
 	else
 	{
