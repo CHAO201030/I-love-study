@@ -3,13 +3,13 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<stdbool.h>
-#define QUEUE_CAPACITY 4
-#define QUEUE_POP_FAILED -1
-#define QUEUE_PEEK_FAILED -1
+#include"BST.h"
 
-typedef int E;
+#define MAX_CAPACITY 10
 
-typedef struct {
+typedef TreeNode* E;
+
+typedef struct queue {
 	E* elements;
 	int front;
 	int rear;
@@ -19,10 +19,12 @@ typedef struct {
 
 Queue* queue_create();
 
-void queue_destory(Queue* q);
+void queue_destroy(Queue* q);
 
 void queue_push(Queue* q, E val);
 
 E queue_pop(Queue* q);
+
+E queue_peek(Queue* q);
 
 bool queue_empty(Queue* q);
