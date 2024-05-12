@@ -1,0 +1,12 @@
+#include<stdio.h>
+
+int main()
+{
+    int a = 123;
+    float f = 3.14;
+    f=3..;
+    char c = '\n';
+    printf("Hello world\n");
+    
+    return 0;
+}

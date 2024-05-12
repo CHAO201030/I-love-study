@@ -10,9 +10,9 @@
  * For more information, please refer to the LICENSE file.
  *
  * Description:
- *   This is a simple C lexical analysis machine based on C.
+ *   This is a simple C Lexical Analyzer based on C.
  *
- * Date: 2024-5-11
+ * Date: 2024-5-12
  */
 
 #include"scanner.h"
@@ -21,7 +21,7 @@ static char* strtoken(Token token)
 {
     switch (token.type)
     {
-        // 单字符Token
+        // Single character Tokens
     case TOKEN_LEFT_PAREN:      return "(";
     case TOKEN_RIGHT_PAREN:     return ")";
     case TOKEN_LEFT_BRACKET:    return "[";
@@ -32,7 +32,7 @@ static char* strtoken(Token token)
     case TOKEN_DOT:             return ".";
     case TOKEN_SEMICOLON:       return ";";
     case TOKEN_TILDE:           return "~";
-        // 一个字符或两个字符的Token
+        // One or two character Tokens
     case TOKEN_PLUS:            return "+";
     case TOKEN_PLUS_PLUS:       return "++";
     case TOKEN_PLUS_EQUAL:      return "+=";
@@ -64,12 +64,12 @@ static char* strtoken(Token token)
     case TOKEN_GREATER:         return ">";
     case TOKEN_GREATER_EQUAL:   return ">=";
     case TOKEN_GREAER_GREATER: 	return ">>";
-        // 字面值: 标识符, 字符, 字符串, 数字
+        // Literal value : identifier, character, string, number
     case TOKEN_IDENTIFIER:      return "IDENTIFIER";
     case TOKEN_CHARACTER:       return "CHARACTER";
     case TOKEN_STRING:          return "STRING";
     case TOKEN_NUMBER:          return "NUMBER";
-        // 关键字
+        // Key words
     case TOKEN_SIGNED:          return "SIGNED";
     case TOKEN_UNSIGNED:        return "UNSIGNED";
     case TOKEN_CHAR:            return "CHAR";
@@ -97,9 +97,11 @@ static char* strtoken(Token token)
     case TOKEN_CONST:           return "CONST";
     case TOKEN_SIZEOF:          return "SIZEOF";
     case TOKEN_TYPEDEF:         return "TYPEDEF";
-        // 辅助Token
+        // Helper Token
     case TOKEN_ERROR:           return "ERROR";
     case TOKEN_EOF:             return "EOF";
+    default:
+        break;
     }
 }
 
@@ -108,13 +110,16 @@ static void run(const char* source)
 
     initScanner(source);
     int line = -1;
-    // 打印Token, 遇到TOKEN_EOF为止
-    // ANSI转义序列 \033[32m 绿色文本
+
+    // ANSI escape sequence : \033[32m  GREEN
     printf("\033[32mOut[%2d]:\n", pyNB);
 
     for (;;)
     {
         Token token = scanToken();
+
+        if (token.type == TOKEN_ERROR) printf("\033[31m");
+           
         if (token.line != line)
         {
             printf("%4d ", token.line);
@@ -124,40 +129,58 @@ static void run(const char* source)
         {
             printf("   | ");
         }
-        printf("%10s -> '%.*s'\n", strtoken(token), token.length, token.start);
+        printf("%10s -> '%.*s'\n\033[32m", strtoken(token), token.length, token.start);
 
         if (token.type == TOKEN_EOF) break;
     }
 }
 
-// 与用户交互，用户每输入一行代码，分析一行代码，并将结果输出
-// repl是"read evaluate print loop"的缩写
+
+// repl: read evaluate print loop
 static void repl()
 {
-    // 1. 从 STDIN 读入数据 printf("Hello World\n");
-    // 2. 开始进行分词
     char buf[MAX_BUFFER_SIZE] = { 0 };
-    // ANSI转义序列 \033[31m 绿色文本
+
+    // ANSI escape sequence : \033[31m  RED
     printf("\033[31mIn [%2d]\033[0m: ",pyNB);
+
     while (fgets(buf, MAX_BUFFER_SIZE - 1, stdin) != NULL)
     {
         run(buf);
-        printf("\033[31mIn [%2d]\033[0m: ", ++pyNB);
+        printf("\033[31m\nIn [%2d]\033[0m: ", ++pyNB);
     }
-
 }
 
 static char* readFile(const char* path)
 {
-    // 用户输入文件名，将整个文件的内容读入内存，并在末尾添加'\0'
-    // 注意: 这里应该使用动态内存分配，因此应该事先确定文件的大小。
+    FILE* fp = fopen(path, "r");
+    if (fp == NULL)
+    {
+        printf("readFile failed, fopen failed\n");
+        exit(-1);
+    }
+
+    char* source = (char*)calloc(MAX_FILE_SIZE, sizeof(char));
+    if (source == NULL)
+    {
+        printf("readFile failed, calloc failed\n");
+        exit(-1);
+    }
+
+    fread(source, 1, MAX_FILE_SIZE, fp);
+
+    fclose(fp);
+
+    return source;
 }
 
 static void runFile(const char* path)
 {
-    // 处理'.c'文件:用户输入文件名，分析整个文件，并将结果输出
     char* source = readFile(path);
-    run(source);    // 调用 initScanner 和 scanToken词法分析
+
+    run(source);
+
+    printf("\033[0m");
     free(source);
 }
 
@@ -165,12 +188,10 @@ int main(int argc, const char* argv[])
 {
     if (argc == 1)
     {
-        // ./scanner 没有参数,则进入交互式界面
         repl();
     }
     else if (argc == 2)
     {
-        // ./scanner file 后面跟一个参数,则分析整个文件
         runFile(argv[1]);
     }
     else

@@ -8,22 +8,20 @@ typedef struct scanner_t{
     int line;
 } Scanner;
 
-// 全局变量
+// Global variable
 Scanner scanner;
 
 void initScanner(const char* source)
 {
-    // 初始化scanner
     scanner.start = source;
     scanner.current = source;
     scanner.line = 1;
 }
 
 /***************************************************************************************
- *                                   辅助方法										   *
+ *                                   Helper method									   *
  ***************************************************************************************/
 
-// If c is alpha return True, else return False
 static bool isAlpha(char c)
 {
     return (c >= 'a' && c <= 'z') ||
@@ -31,38 +29,32 @@ static bool isAlpha(char c)
         c == '_';
 }
 
-// If c is digit return True, else return False
 static bool isDigit(char c)
 {
     return c >= '0' && c <= '9';
 }
 
-// If pointer variable Scanner.current point to '\0\ return True, else return False 
 static bool isAtEnd()
 {
     return *scanner.current == '\0';
 }
 
-// Scanner.current point to next position and return it
 static char advance()
 {
     return *scanner.current++;
 }
 
-// Return the object pointed by Scanner.current
 static char peek()
 {
     return *scanner.current;
 }
 
-// Return the next object pointed by Scanner.current
 static char peekNext()
 {
     if (isAtEnd()) return '\0';
     return *(scanner.current + 1);
 }
 
-// If next == expect return true and cur mv to next pos
 static bool match(char expected)
 {
     if (isAtEnd()) return false;
@@ -71,7 +63,6 @@ static bool match(char expected)
     return true;
 }
 
-// 传入TokenType, 创建对应类型的Token，并返回。
 static Token makeToken(TokenType type)
 {
     Token token;
@@ -83,8 +74,6 @@ static Token makeToken(TokenType type)
     return token;
 }
 
-// 遇到不能解析的情况时，我们创建一个ERROR Token.
-// 比如：遇到'$' 等符号时，或字符串，字符没有对应的右引号时。
 static Token errorToken(const char* message)
 {
     Token token;
@@ -98,9 +87,6 @@ static Token errorToken(const char* message)
 
 static void skipWhitespace()
 {
-    // 跳过空白字符: ' ', '\r', '\t', '\n'和注释
-    // 注释以'//'开头, 一直到行尾
-    // 注意更新scanner.line！
     while (*scanner.current)
     {
         switch (*scanner.current)
@@ -124,16 +110,10 @@ static void skipWhitespace()
     }
 }
 
-// 参数说明：
-// start: 从哪个索引位置开始比较
-// length: 要比较字符的长度
-// rest: 要比较的内容
-// type: 如果完全匹配，则说明是type类型的关键字
-
 static TokenType checkKeyword(int start, int length, const char* rest, TokenType type)
 {
-    int len = (int)(scanner.current - scanner.start); // TOKEN的长度
-    // start + length: 关键字的长度
+    int len = (int)(scanner.current - scanner.start);
+
     if (start + length == len && memcmp(scanner.start + start, rest, length) == 0)
     {
         return type;
@@ -142,16 +122,13 @@ static TokenType checkKeyword(int start, int length, const char* rest, TokenType
     return TOKEN_IDENTIFIER;
 }
 
-// 判断当前Token到底是标识符还是关键字
+
 static TokenType identifierType()
 {
-    // 确定identifier类型主要有两种方式：
-    // 1. 将所有的关键字放入哈希表中，然后查表确认
-    // 2. 将所有的关键字放入Trie树中，然后查表确认
-    // Trie树的方式不管是空间上还是时间上都优于哈希表的方式
     char c = scanner.start[0];
     TokenType helper;
-    // 用switch语句实现Trie树
+
+    // Trie Tree
     switch (c)
     {
     case 'b':return checkKeyword(1, 4, "reak", TOKEN_BREAK);
@@ -266,43 +243,37 @@ static TokenType identifierType()
 
 static Token identifier()
 {
-    // IDENTIFIER包含: 字母，数字和下划线
     while (isAlpha(peek()) || isDigit(peek()))
     {
         advance();
     }
-    // 这样的Token可能是标识符, 也可能是关键字, identifierType()是用来确定Token类型的
+
     return makeToken(identifierType());
 }
 
 static Token number()
 {
-    // 简单起见，我们将NUMBER的规则定义如下:
-    // 1. NUMBER可以包含数字和最多一个'.'号
-    // 2. '.'号前面要有数字
-    // 3. '.'号后面也要有数字
-    // 这些都是合法的NUMBER: 123, 3.14
-    // 这些都是不合法的NUMBER: 123., .14
+
     while (isDigit(peek()))
     {
         advance();
-    }// peek 为 . 或者结尾
+    }
 
     if (peek() == '.')
     {
         advance();
-        
-        while (peek() && peek() != '\n')
+
+        if (!isDigit(peek()))
         {
-            // '.'的后面不是数字 返回errorToken
-            if (!isDigit(peek()))
+            while (peek() != '\n' && peek() != ';')
             {
-                /*
-                    BUG
-                    当传入 3..时多一个'\n'字符 导致打印结果多换行一次
-                */
-                return errorToken(scanner.start);
+                advance();
             }
+            return makeToken(TOKEN_ERROR);
+        }
+
+        while (isDigit(peek()))
+        {
             advance();
         }
     }
@@ -312,23 +283,52 @@ static Token number()
 
 static Token string()
 {
-    // 字符串以"开头，以"结尾，而且不能跨行
+    while (peek() != '"' && peek() != '\n')
+    {
+        advance();
+    }// cur = " || cur = \n
+
+    if (peek() == '"')
+    {
+        advance();
+        return makeToken(TOKEN_STRING);
+    }
+
+    return makeToken(TOKEN_ERROR);
 }
 
 static Token character()
 {
-    // 字符'开头，以'结尾，而且不能跨行   
+    // char c='';
+    if (peek() == '\'')
+    {
+        advance();
+        return makeToken(TOKEN_ERROR);
+    }
+
+    while (peek() != '\n' && peek() != '\'')
+    {
+        advance();
+    }
+
+    if (peek() == '\'')
+    {
+        advance();
+        return makeToken(TOKEN_CHARACTER);
+    }
+
+    return makeToken(TOKEN_ERROR);
 }
 
 /***************************************************************************************
- *                                   	分词										   *
+ *                               Segmentation Word									   *
  ***************************************************************************************/
 
 Token scanToken()
 {
-    // 跳过前置空白字符和注释
     skipWhitespace();
-    // 记录下一个Token的起始位置
+
+    // Next Token start position
     scanner.start = scanner.current;
 
     if (isAtEnd()) return makeToken(TOKEN_EOF);

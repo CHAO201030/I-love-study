@@ -5,6 +5,7 @@
 #include<stdlib.h>
 #include<string.h>
 #define MAX_BUFFER_SIZE 1024
+#define MAX_FILE_SIZE 4096
 
 extern int pyNB;
 
@@ -31,10 +32,10 @@ typedef enum {
 	TOKEN_LESS, TOKEN_LESS_EQUAL, TOKEN_LESS_LESS,				// '<','<=', '<<'
 	TOKEN_GREATER, TOKEN_GREATER_EQUAL, TOKEN_GREAER_GREATER,	// '>','>=', '>>'
 	
-	// 字面值: 标识符, 字符, 字符串, 数字
+	// Literal value : identifier, character, string, number
 	TOKEN_IDENTIFIER, TOKEN_CHARACTER, TOKEN_STRING, TOKEN_NUMBER,
 	
-	// 关键字
+	// Key words
 	TOKEN_SIGNED, TOKEN_UNSIGNED,
 	TOKEN_CHAR, TOKEN_SHORT, TOKEN_INT, TOKEN_LONG,
 	TOKEN_FLOAT, TOKEN_DOUBLE,
@@ -44,19 +45,19 @@ typedef enum {
 	TOKEN_BREAK, TOKEN_CONTINUE, TOKEN_RETURN, TOKEN_GOTO,
 	TOKEN_CONST, TOKEN_SIZEOF, TOKEN_TYPEDEF,
 	
-	// 辅助Token
+	// Helper Token
 	TOKEN_ERROR, TOKEN_EOF
 } TokenType;
 
 typedef struct token_t{
 	TokenType type;
-	const char* start;		// start指向source中的字符，source为读入的源代码。
-	int length;				// length表示这个Token的长度
-	int line;				// line表示这个Token在源代码的哪一行, 方便后面的报错
+	const char* start;		// Pointed to a character in source code
+	int length;				// Length of Token
+	int line;				// The line number of the token in the source code
 } Token;
 
-// 对 Scanner 进行初始化
+// Initialize Scanner
 void initScanner(const char* source);
 
-// 调用scanToken(), 返回下一个Token.
+// Scan Token
 Token scanToken();
