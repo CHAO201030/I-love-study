@@ -32,6 +32,9 @@ typedef enum {
 	TOKEN_LESS, TOKEN_LESS_EQUAL, TOKEN_LESS_LESS,				// '<','<=', '<<'
 	TOKEN_GREATER, TOKEN_GREATER_EQUAL, TOKEN_GREAER_GREATER,	// '>','>=', '>>'
 	
+	// three character Tokens
+	TOKEN_LESS_LESS_EQUAL, TOKEN_GREATER_GREATER_EQUAL,			// '<<=','>>='
+	
 	// Literal value : identifier, character, string, number
 	TOKEN_IDENTIFIER, TOKEN_CHARACTER, TOKEN_STRING, TOKEN_NUMBER,
 	
@@ -46,7 +49,7 @@ typedef enum {
 	TOKEN_CONST, TOKEN_SIZEOF, TOKEN_TYPEDEF,
 	
 	// Helper Token
-	TOKEN_ERROR, TOKEN_EOF
+	TOKEN_ERROR, TOKEN_EOF, TOKEN_PREPROCESSING
 } TokenType;
 
 typedef struct token_t{

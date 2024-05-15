@@ -350,6 +350,7 @@ Token scanToken()
     case '.':return makeToken(TOKEN_DOT);
     case ';':return makeToken(TOKEN_SEMICOLON);
     case '~':return makeToken(TOKEN_TILDE);
+    case '#':return makeToken(TOKEN_PREPROCESSING);
 
         // one or two characters tokens
     case '+':
@@ -410,13 +411,21 @@ Token scanToken()
     case '<':
     {
         if (match('='))return makeToken(TOKEN_LESS_EQUAL);
-        else if (match('<'))return makeToken(TOKEN_LESS_LESS);
+        else if (match('<'))
+        {
+            if (match('='))return makeToken(TOKEN_LESS_LESS_EQUAL);
+            return makeToken(TOKEN_LESS_LESS);
+        }
         else return makeToken(TOKEN_LESS);
     }
     case '>':
     {
         if (match('='))return makeToken(TOKEN_GREATER_EQUAL);
-        else if (match('>'))return makeToken(TOKEN_GREAER_GREATER);
+        else if (match('>'))
+        {
+            if (match('='))return makeToken(TOKEN_GREATER_GREATER_EQUAL);
+            return makeToken(TOKEN_GREAER_GREATER);
+        }
         else return makeToken(TOKEN_GREATER);
     }
         // various-character tokens
