@@ -7,6 +7,7 @@
 
 typedef struct{
     int fd;
+    time_t conn_time;
 }elem_t;
 
 typedef struct{

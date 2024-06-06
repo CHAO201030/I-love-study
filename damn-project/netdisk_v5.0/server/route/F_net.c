@@ -51,11 +51,19 @@ int tcp_accept(int sfd)
         printf("INFO : accept failed\n");
         return -1;
     }
+    
+    int status = fcntl(client_fd, F_GETFL);
+    status |= O_NONBLOCK;
+    if(fcntl(client_fd, F_SETFL, status) == -1)
+    {
+        printf("INFO : set no block client_fd failed\n");
+        return -1;   
+    }
 
     printf("INFO : %s %d connected...\n", 
             inet_ntoa(client_addr.sin_addr), 
             ntohs(client_addr.sin_port));
-    
+            
     return client_fd;
 }
 

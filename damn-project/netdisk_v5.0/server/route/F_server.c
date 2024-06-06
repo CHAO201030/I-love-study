@@ -1,7 +1,5 @@
 #include "../include/H_thread_pool.h"
 
-
-
 #define THREAD_NUM "5"
 #define MAX_CAPACITY 1024
 
@@ -21,7 +19,9 @@ int main(int argc, char* argv[])
 
     while(1)
     {
-        int ready_fd_num = epoll_wait(epfd, evs, MAX_CAPACITY, -1);
+        int ready_fd_num = epoll_wait(epfd, evs, MAX_CAPACITY, 1000);
+        
+        time_t cur_time = time(NULL);
 
         for(int i = 0; i < ready_fd_num; i++)
         {
@@ -34,11 +34,17 @@ int main(int argc, char* argv[])
                 
                 if(new_client.fd != -1)
                 {
+                    new_client.conn_time = time(NULL);
                     distribute_task(p_manager, new_client);
-                    // send_cluster_info(new_client.fd, CLUSTER_1_IP, CLUSTER_1_PORT);
                 }
             }
         }// end search evs[i].data.fd
+
+        // TIME_OUT
+        for(int i = 0; i < MAX_CAPACITY; i++)
+        {
+            
+        }
     }// end while(1)
 
 }

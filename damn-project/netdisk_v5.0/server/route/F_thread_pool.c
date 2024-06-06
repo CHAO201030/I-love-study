@@ -20,9 +20,11 @@ void* pth_func(void *args)
         }
 
         printf("INFO : thread %ld do his job, fd = %d\n", tid, new_client.fd);
-        // send_file(new_client.fd);
+
         send_cluster_info(new_client.fd, CLUSTER_1_IP, CLUSTER_1_PORT);
+
         sleep(5);
+        
         printf("INFO : thread %ld finish his job, fd = %d\n", tid, new_client.fd);
 
     }
