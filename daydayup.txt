@@ -1,3 +1,6 @@
+24.07.04 24点00分
+    1. 好心情都被 My_String 毁了 Damn My_String Class 
+
 24.07.03 23点30分
     1. 我心心念念的模拟 numpy 终于在学了vector和重载之后写出 mini_demo 了
        让我用C写不如杀了我
