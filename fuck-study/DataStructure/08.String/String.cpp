@@ -188,6 +188,7 @@ const char & String::operator[](size_t index) const
 
 bool operator==(const String & lhs, const String & rhs)
 {
+    /*
     if(lhs._size != rhs._size)return false;
 
     for(size_t i = 0; i < lhs._size; i++)
@@ -196,10 +197,14 @@ bool operator==(const String & lhs, const String & rhs)
     }
 
     return true;
+    */
+
+    return strcmp(lhs._pstr, rhs._pstr) == 0;
 }
 
 bool operator!=(const String & lhs, const String & rhs)
 {
+    /*
     if(lhs._size != rhs._size)return true;
 
     for(size_t i = 0; i < lhs._size; i++)
@@ -208,10 +213,14 @@ bool operator!=(const String & lhs, const String & rhs)
     }
 
     return false;
+    */
+
+    return strcmp(lhs._pstr, rhs._pstr) != 0;
 }
 
 bool operator<(const String & lhs, const String & rhs)
 {   
+    /*
     if(lhs._size < rhs._size)return true;
     if(lhs._size > rhs._size)return false;
     
@@ -221,10 +230,14 @@ bool operator<(const String & lhs, const String & rhs)
     }
 
     return false;
+    */
+
+    return strcmp(lhs._pstr, rhs._pstr) < 0;
 }
 
 bool operator>(const String & lhs, const String & rhs)
 {
+    /*
     if(lhs._size > rhs._size)return true;
     if(lhs._size < rhs._size)return false;
 
@@ -234,10 +247,14 @@ bool operator>(const String & lhs, const String & rhs)
     }
 
     return false;
+    */
+
+    return strcmp(lhs._pstr, rhs._pstr) > 0;
 }
 
 bool operator<=(const String & lhs, const String & rhs)
 {   
+    /*
     if(lhs._size < rhs._size)return true;
     if(lhs._size > rhs._size)return false;
 
@@ -247,10 +264,14 @@ bool operator<=(const String & lhs, const String & rhs)
     }
 
     return true;
+    */
+
+    return strcmp(lhs._pstr, rhs._pstr) <= 0;
 }
 
 bool operator>=(const String & lhs, const String & rhs)
 {
+    /*
     if(lhs._size < rhs._size)return false;
     if(lhs._size > rhs._size)return true;
 
@@ -260,6 +281,9 @@ bool operator>=(const String & lhs, const String & rhs)
     }
 
     return true;
+    */
+    
+    return strcmp(lhs._pstr, rhs._pstr) >= 0;
 }
 
 std::ostream & operator<<(std::ostream & os, const String & rhs)
@@ -271,6 +295,7 @@ std::ostream & operator<<(std::ostream & os, const String & rhs)
 
 std::istream & operator>>(std::istream & is, String & rhs)
 {
+    /*
     std::cout << "Input a string (less than 1024) : ";
     
     char temp[1024] = {0};
@@ -278,6 +303,27 @@ std::istream & operator>>(std::istream & is, String & rhs)
     is >> temp;
 
     rhs += temp;
+
+    return is;
+    */
+
+    if(rhs._pstr)
+    {
+        delete [] rhs._pstr;
+        rhs._pstr = nullptr;
+    }
+
+    std::vector<char> buf;
+    char ch;
+
+    while((ch = is.get())!= '\n')
+    {
+        buf.push_back(ch);
+    }
+
+    rhs._size = buf.size();
+    rhs._pstr = new char[rhs._size + 1]();
+    strncpy(rhs._pstr, &buf[0], rhs._size);
 
     return is;
 }
