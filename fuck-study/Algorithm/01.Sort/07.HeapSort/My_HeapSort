@@ -1,0 +1,27 @@
+#ifndef __HEAP_SORT__
+#define __HEAP_SORT__
+
+#include <iostream>
+#include <vector>
+#include <functional>
+
+template <typename T, typename Compare = std::less<T>>
+class HeapSort
+{
+public:
+    HeapSort(T *arr, size_t size, Compare cmp);
+    void heapAdjust(size_t left, size_t right);
+    void sort();
+    void printResult();
+
+private:
+    void build_heap();
+
+private:
+    std::vector<T> _vec;
+    Compare _cmp;
+};
+
+#include "HeapSort.tcc"
+
+#endif

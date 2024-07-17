@@ -1,0 +1,26 @@
+#ifndef __SELECT_SORT__
+#define __SELECT_SORT__
+
+#include <iostream>
+#include <vector>
+#include <functional>
+
+
+template <typename T, typename Compare = std::less<int>>
+class SelectSort
+{
+public:
+    SelectSort(T *arr, size_t size, Compare cmp);
+    void sort();
+    void printResult();
+
+private:
+
+private:
+    std::vector<T> _vec;
+    Compare _cmp;
+};
+
+#include "My_SelectSort.tcc"
+
+#endif

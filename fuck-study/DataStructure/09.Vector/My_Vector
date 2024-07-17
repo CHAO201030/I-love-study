@@ -1,0 +1,43 @@
+#ifndef __VECTOR_HPP__
+#define __VECTOR_HPP__
+
+#include <iostream>
+
+template <typename _Tp>
+class Vector
+{
+public:
+    typedef _Tp* Iterator;
+    typedef const _Tp* Const_Iterator;
+
+public:
+    Vector();
+    Vector(_Tp data);
+    Vector(size_t n, const _Tp & data);
+    ~Vector();
+
+    Iterator begin();
+    Const_Iterator begin() const;
+    Iterator end();
+    Const_Iterator end() const;
+
+    void push_back(const _Tp & data);
+    void pop_back();
+
+    size_t max_size() const;
+    size_t size() const;
+    size_t capacity() const;
+
+    bool empty() const;
+
+    _Tp operator[](size_t n);
+
+private:
+    _Tp* _M_start;
+    _Tp* _M_finish;
+    _Tp* _M_end_of_storage;
+};
+
+#include"Vector.tcc"
+
+#endif

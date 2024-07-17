@@ -1,0 +1,24 @@
+#ifndef __MY_QSORT__
+#define __MY_QSORT__
+
+#include <iostream>
+#include <vector>
+#include <functional>
+
+template <typename T, typename Compare = std::less<T>>
+class MyQsort
+{
+public:
+    MyQsort(T* arr, size_t size, Compare com);
+    void quick(int left, int right);
+    int partition(int left, int right);
+    void printResult();
+
+private:
+    std::vector<T> _vec;
+    Compare _com;
+};
+
+#include"My_Qsort.tcc"
+
+#endif
